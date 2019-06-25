@@ -29,11 +29,11 @@ const UserSchema = new Schema({
 		type: Boolean,
 		default: false
 	}
-},{ timestamps: { createdAt: 'created_at' }});
+},{ timestamps: true});
 
 UserSchema.pre('save', function(next){
-this.password = bcrypt.hashSync(this.password, saltRounds);
-next();
+    this.password = bcrypt.hashSync(this.password, saltRounds);
+    next();
 });
 
 module.exports = mongoose.model('User', UserSchema);
