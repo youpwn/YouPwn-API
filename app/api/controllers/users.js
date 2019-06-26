@@ -4,13 +4,29 @@ const jwt = require('jsonwebtoken');
 
 module.exports = {
 	create: function(req, res, next) {
-		userModel.create({ nickname: req.body.nickname, email: req.body.email, password: req.body.password }, function (err, result) {
+		userModel.countDocuments({nickname:req.body.nickname}, function(err, count){
 			if(err){
-			  	next(err);
-			}else{
-				//Check here nickname, email and password
-			  	res.json({status: "success", message: "User added successfully!!!", data: null});
+				next(err);
+			}else if(count == 0){
+                userModel.countDocuments({email:req.body.email}, function(err, count){
+					if(err){
+						next(err);
+					}else if(count == 0){
+						userModel.create({ nickname: req.body.nickname, email: req.body.email, password: req.body.password }, function (err, result) {
+							if(err){
+								next(err);
+							}else{
+								res.json({status: "success", message: "Account created successfully", data: null});
+							}
+						});
+					}else{
+						res.json({status: "error", message: "This email is already linked to an account", data: null});
+					}
+				});
+            }else{
+				res.json({status: "error", message: "This nickname is already taken", data: null});
 			}
+			
 		});
 	},
 
@@ -20,10 +36,10 @@ module.exports = {
 				next(err);
 			}else{
 				if(userInfo != null && bcrypt.compareSync(req.body.password, userInfo.password)) {
-					const token = jwt.sign({id: userInfo._id}, req.app.get('secretKey'), { expiresIn: '1h' }); 
-					res.json({status:"success", message: "user found!!!", data:{user: userInfo, token:token}});	
+					const token = jwt.sign({id: userInfo._id}, req.app.get('secretKey'), { expiresIn: '48h' }); 
+					res.json({status:"success", message: "Authentification success", data:{user: userInfo, token:token}});	
 				}else{
-					res.json({status:"error", message: "Invalid email/password!!!", data:null});
+					res.json({status:"error", message: "Invalid email or password", data:null});
 				}
 			}
 		});
