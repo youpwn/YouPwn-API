@@ -29,7 +29,7 @@ const UserSchema = new Schema({
 		type: Boolean,
 		default: false
 	}
-},{ timestamps: true});
+},{ timestamps: true });
 
 UserSchema.pre('save', function(next){
     this.password = bcrypt.hashSync(this.password, saltRounds);

@@ -1,6 +1,6 @@
 const express = require('express');
 const logger = require('morgan');
-const movies = require('./routes/movies') ;
+const challs = require('./routes/challs') ;
 const users = require('./routes/users');
 const bodyParser = require('body-parser');
 const mongoose = require('./config/database'); //database configuration
@@ -16,14 +16,14 @@ app.use(logger('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.get('/', function(req, res){
-res.json({"tutorial" : "Build REST API with node.js"});
+    res.json({"tutorial" : "Build REST API with node.js"});
 });
 
 // public route
 app.use('/users', users);
 
 // private route
-app.use('/movies', validateUser, movies);
+app.use('/challs', validateUser, challs);
 
 
 app.get('/favicon.ico', function(req, res) {
@@ -31,16 +31,15 @@ app.get('/favicon.ico', function(req, res) {
 });
 
 function validateUser(req, res, next) {
-  jwt.verify(req.headers['x-access-token'], req.app.get('secretKey'), function(err, decoded) {
-    if (err) {
-      res.json({status:"error", message: err.message, data:null});
-    }else{
-      // add user id to request
-      req.body.userId = decoded.id;
-      next();
-    }
-  });
-  
+    jwt.verify(req.headers['x-access-token'], req.app.get('secretKey'), function(err, decoded) {
+        if (err) {
+            res.json({status:"error", message: err.message, data:null});
+        }else{
+            // add user id to request
+            req.body.userId = decoded.id;
+            next();
+        }
+    });
 }
 
 
@@ -54,15 +53,14 @@ app.use(function(req, res, next) {
 
 // handle errors
 app.use(function(err, req, res, next) {
-	console.log(err);
-	
-  if(err.status === 404)
-  	res.status(404).json({message: "Not found"});
-  else	
-    res.status(500).json({message: "Something looks wrong :( !!!"});
+    console.log(err);
+    if(err.status === 404)
+        res.status(404).json({message: "Not found"});
+    else	
+        res.status(500).json({message: "Something looks wrong :( !!!"});
 
 });
 
 app.listen(3000, function(){
-	console.log('Node server listening on port 3000');
+    console.log('Node server listening on port 3000');
 });
